@@ -187,7 +187,7 @@ public class PlayerDetailComponent extends JPanel implements RefreshableUi {
 			}
 			String positionNameString = positionName.toString();
             String keywords = getPlayer().getPosition().getKeywords().isEmpty() ?
-                    "" :
+                    "()" :
                     "(" + getPlayer().getPosition().getKeywords().stream()
 				.map(Keyword::getName).sorted().collect(Collectors.joining(", ")) + ")";
 			g2d.setFont(positionFont);
