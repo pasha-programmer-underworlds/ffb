@@ -53,6 +53,7 @@
             <id>package-app-image</id>
             <properties>
                 <package-app-image>true</package-app-image>
+                <is-package-app-image>true</is-package-app-image>
             </properties>
             <build>
                 <plugins>
