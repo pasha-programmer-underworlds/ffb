@@ -38,6 +38,7 @@ public class OptionsMenu extends FfbMenu {
 		if (client.getGame().isTesting()) {
 			JMenuItem optionItem = new JMenuItem(dimensionProvider,
 				"* Game is in TEST mode. No results will be uploaded. See help for available test commands.");
+            optionItem.setFont(getDefaultFont());
 			add(optionItem);
 			optionsAdded++;
 		}
@@ -45,6 +46,7 @@ public class OptionsMenu extends FfbMenu {
 			if (option.isChanged() && (option.getId() != GameOptionId.TEST_MODE)
 				&& StringTool.isProvided(option.getDisplayMessage())) {
 				JMenuItem optionItem = new JMenuItem(dimensionProvider, "* " + option.getDisplayMessage());
+                optionItem.setFont(getDefaultFont());
 				add(optionItem);
 				optionsAdded++;
 			}
