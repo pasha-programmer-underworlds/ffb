@@ -65,6 +65,7 @@ public class PrayersMenu extends FfbMenu {
 				JMenu prayersHomeMenu = new JMenu(dimensionProvider, currentPrayersHome.size() + " Home Team");
 				prayersHomeMenu.setForeground(Color.RED);
 				prayersHomeMenu.setMnemonic(KeyEvent.VK_H);
+                prayersHomeMenu.setFont(getDefaultFont());
 				add(prayersHomeMenu);
 				addPrayers(prayersHomeMenu, currentPrayersHome);
 			}
@@ -73,6 +74,7 @@ public class PrayersMenu extends FfbMenu {
 				JMenu prayersAwayMenu = new JMenu(dimensionProvider, currentPrayersAway.size() + " Away Team");
 				prayersAwayMenu.setForeground(Color.BLUE);
 				prayersAwayMenu.setMnemonic(KeyEvent.VK_A);
+                prayersAwayMenu.setFont(getDefaultFont());
 				add(prayersAwayMenu);
 				addPrayers(prayersAwayMenu, currentPrayersAway);
 			}
@@ -103,6 +105,7 @@ public class PrayersMenu extends FfbMenu {
 				"<br>" + prayer.getDuration().getDescription() + ": " + prayer.getDescription() +
 				"</html>";
 			JMenuItem menuItem = new JMenuItem(dimensionProvider, text);
+            menuItem.setFont(getDefaultFont());
 			prayerMenu.add(menuItem);
 		}
 	}
