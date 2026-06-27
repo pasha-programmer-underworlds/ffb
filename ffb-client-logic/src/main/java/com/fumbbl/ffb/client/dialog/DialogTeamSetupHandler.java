@@ -46,13 +46,12 @@ public class DialogTeamSetupHandler extends DialogHandler {
 		hideDialog();
 		if (testDialogHasId(pDialog, DialogId.TEAM_SETUP)) {
 			DialogTeamSetup teamSetupDialog = (DialogTeamSetup) pDialog;
-			if (teamSetupDialog.getUserChoice() == DialogTeamSetup.CHOICE_LOAD) {
+            int userChoice = teamSetupDialog.getUserChoice();
+            if (userChoice == DialogTeamSetup.CHOICE_LOAD) {
 				getClient().getCommunication().sendTeamSetupLoad(teamSetupDialog.getSetupName());
-			}
-			if (teamSetupDialog.getUserChoice() == DialogTeamSetup.CHOICE_DELETE) {
+			} else if (userChoice == DialogTeamSetup.CHOICE_DELETE) {
 				getClient().getCommunication().sendTeamSetupDelete(teamSetupDialog.getSetupName());
-			}
-			if (teamSetupDialog.getUserChoice() == DialogTeamSetup.CHOICE_SAVE) {
+			} else if (userChoice == DialogTeamSetup.CHOICE_SAVE) {
 				Game game = getClient().getGame();
 				TeamSetup teamSetup = new TeamSetup();
 				teamSetup.setName(teamSetupDialog.getSetupName());

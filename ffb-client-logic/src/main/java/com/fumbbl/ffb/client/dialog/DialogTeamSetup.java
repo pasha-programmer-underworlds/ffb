@@ -99,6 +99,14 @@ public class DialogTeamSetup extends Dialog implements ActionListener, ListSelec
 		}
 		getContentPane().add(buttonPanel);
 
+        boolean isSetUpListEmpty = fSetupListModel.isEmpty();
+        if (isLoadDialog()) {
+            if (!isSetUpListEmpty)
+                fSetupList.setSelectedIndex(0);
+            else
+                fSetupList.setSelectedIndex(-1);
+        }
+
 		pack();
 		int height = Math.max(getSize().height, 100);
 		int width = Math.max(getSize().width, 200);
