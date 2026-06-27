@@ -92,6 +92,7 @@ public class InducementsMenu extends FfbMenu {
 				fInducementsHomeMenu = new JMenu(dimensionProvider, totalInducementHome + " Home Team");
 				fInducementsHomeMenu.setForeground(Color.RED);
 				fInducementsHomeMenu.setMnemonic(KeyEvent.VK_H);
+                fInducementsHomeMenu.setFont(getDefaultFont());
 				add(fInducementsHomeMenu);
 				addInducements(fInducementsHomeMenu, inducementSetHome);
 			}
@@ -100,6 +101,7 @@ public class InducementsMenu extends FfbMenu {
 				fInducementsAwayMenu = new JMenu(dimensionProvider, totalInducementAway + " Away Team");
 				fInducementsAwayMenu.setForeground(Color.BLUE);
 				fInducementsAwayMenu.setMnemonic(KeyEvent.VK_A);
+                fInducementsAwayMenu.setFont(getDefaultFont());
 				add(fInducementsAwayMenu);
 				addInducements(fInducementsAwayMenu, inducementSetAway);
 			}
@@ -137,6 +139,7 @@ public class InducementsMenu extends FfbMenu {
 						inducementText.append(inducement.getType().getSingular());
 					}
 					JMenuItem inducementItem = new JMenuItem(dimensionProvider, inducementText.toString());
+                    inducementItem.setFont(getDefaultFont());
 					pInducementMenu.add(inducementItem);
 				}
 			}
