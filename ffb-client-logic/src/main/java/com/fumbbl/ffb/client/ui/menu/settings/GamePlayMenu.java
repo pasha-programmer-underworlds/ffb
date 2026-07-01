@@ -507,12 +507,12 @@ public class GamePlayMenu extends FfbMenu {
 		JMenu highlightActivePlayerMenu = new JMenu(dimensionProvider, SETTING_HIGHLIGHT_ACTIVE_PLAYER);
 		ButtonGroup buttonGroup = new ButtonGroup();
 
-		highlightActivePlayerOn = new JRadioButtonMenuItem(dimensionProvider, "Enable");
+		highlightActivePlayerOn = new JRadioButtonMenuItem(dimensionProvider, "Enable", fontCache, fontConfigRegistry);
 		highlightActivePlayerOn.addActionListener(this);
 		buttonGroup.add(highlightActivePlayerOn);
 		highlightActivePlayerMenu.add(highlightActivePlayerOn);
 
-		highlightActivePlayerOff = new JRadioButtonMenuItem(dimensionProvider, "Disable");
+		highlightActivePlayerOff = new JRadioButtonMenuItem(dimensionProvider, "Disable", fontCache, fontConfigRegistry);
 		highlightActivePlayerOff.addActionListener(this);
 		buttonGroup.add(highlightActivePlayerOff);
 		highlightActivePlayerMenu.add(highlightActivePlayerOff);
