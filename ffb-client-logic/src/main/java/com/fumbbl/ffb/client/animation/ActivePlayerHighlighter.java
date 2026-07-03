@@ -28,7 +28,7 @@ public class ActivePlayerHighlighter {
 	//When switching the layout - we do not want more then one instance of
 	//ActivePlayerHighlighter...
 	private ActivePlayerHighlighter() {
-    }
+	}
 
 	public static synchronized ActivePlayerHighlighter getInstance() {
 		if (instance == null) {
@@ -48,14 +48,16 @@ public class ActivePlayerHighlighter {
 		this.g2d = g2d;
 		if (animationTimer == null) {
 			animationTimer = new javax.swing.Timer(40, e -> {
-				// Update brightness (Ping-pong logic)
-				brightness += delta;
-				if (brightness > 1.5f || brightness < 0.8f) {
-					delta = -delta; // Reverse direction
-				}
-
 				if (isHighlightingOn) {
-					repaint();
+					// Update brightness (Ping-pong logic)
+					brightness += delta;
+					if (brightness > 1.5f || brightness < 0.8f) {
+						delta = -delta; // Reverse direction
+					}
+					repaint(brightness,
+							g2d,
+							activePlayerIcon,
+							client.getGame().getFieldModel().getPlayerCoordinate(activePlayer));
 				} else {
 					animationTimer.stop();
 				}
@@ -64,21 +66,21 @@ public class ActivePlayerHighlighter {
 		}
 	}
 
-    /**
-     * When we want to start highlighting animation for active player then we set FieldCoordinate for active player,
-     * when we want to stop highlighting we set null as input.
-     *
-     * @param activePlayer
-     */
-    public void setActivePlayer(Player<?> activePlayer) {
-	    if (activePlayer == null) {
-		    stopHighlighting();
-	    } else {
-		    this.activePlayer = activePlayer;
-            stopHighlighting();
-		    startHighlighting();
-	    }
-    }
+	/**
+	 * When we want to start highlighting animation for active player then we set FieldCoordinate for active player,
+	 * when we want to stop highlighting we set null as input.
+	 *
+	 * @param activePlayer
+	 */
+	public void setActivePlayer(Player<?> activePlayer) {
+		if (activePlayer == null) {
+			stopHighlighting();
+		} else {
+			this.activePlayer = activePlayer;
+			stopHighlighting();
+			startHighlighting();
+		}
+	}
 
 	private void startHighlighting() {
 		isHighlightingOn = true;
@@ -93,13 +95,11 @@ public class ActivePlayerHighlighter {
 		brightness = 1.0f;
 	}
 
-	private void repaint() {
-        // 1.0 is original brightness, > 1.0 is brighter, < 1.0 is darker
-        float[] scales = {brightness, brightness, brightness, 1.0f};
-        float[] offsets = {0, 0, 0, 0};
-        RescaleOp rescale = new RescaleOp(scales, offsets, null);
-
-		FieldCoordinate playerCoordinate = client.getGame().getFieldModel().getPlayerCoordinate(activePlayer);
+	private void repaint(float brightness, Graphics2D g2d, BufferedImage activePlayerIcon, FieldCoordinate playerCoordinate) {
+		// 1.0 is original brightness, > 1.0 is brighter, < 1.0 is darker
+		float[] scales = {brightness, brightness, brightness, 1.0f};
+		float[] offsets = {0, 0, 0, 0};
+		RescaleOp rescale = new RescaleOp(scales, offsets, null);
 
 		int upperLeftX = findCenteredIconUpperLeftX(activePlayerIcon, playerCoordinate);
 		int upperLeftY = findCenteredIconUpperLeftY(activePlayerIcon, playerCoordinate);
@@ -122,12 +122,12 @@ public class ActivePlayerHighlighter {
 	}
 
 	protected int findCenteredIconUpperLeftX(BufferedImage activePlayerIcon, FieldCoordinate pCoordinate) {
-        Dimension dimension = pitchDimensionProvider.mapToLocal(pCoordinate, true);
+		Dimension dimension = pitchDimensionProvider.mapToLocal(pCoordinate, true);
 		return dimension.width - (activePlayerIcon.getWidth() / 2);
-    }
+	}
 
 	protected int findCenteredIconUpperLeftY(BufferedImage activePlayerIcon, FieldCoordinate pCoordinate) {
-        Dimension dimension = pitchDimensionProvider.mapToLocal(pCoordinate, true);
+		Dimension dimension = pitchDimensionProvider.mapToLocal(pCoordinate, true);
 		return dimension.height - (activePlayerIcon.getHeight() / 2);
-    }
+	}
 }
