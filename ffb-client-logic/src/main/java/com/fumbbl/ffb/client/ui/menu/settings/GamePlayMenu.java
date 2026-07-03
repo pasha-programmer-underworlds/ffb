@@ -505,6 +505,7 @@ public class GamePlayMenu extends FfbMenu {
 
 	private void createHighlightActivePlayerMenu() {
 		JMenu highlightActivePlayerMenu = new JMenu(dimensionProvider, SETTING_HIGHLIGHT_ACTIVE_PLAYER);
+		highlightActivePlayerMenu.setFont(getDefaultFont());
 		ButtonGroup buttonGroup = new ButtonGroup();
 
 		highlightActivePlayerOn = new JRadioButtonMenuItem(dimensionProvider, "Enable", fontCache, fontConfigRegistry);
