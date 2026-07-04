@@ -53,16 +53,18 @@ public class ActivePlayerHighlighter {
 				if (isHighlightingOn) {
 					AnimationDependentData currentData = animationDependentData;
 					// Update brightness (Ping-pong logic)
-					brightness += delta;
-					if (brightness > 1.5f || brightness < 0.8f) {
-						delta = -delta; // Reverse direction
-					}
-					FieldCoordinate playerCoordinate = client
-							.getGame()
-							.getFieldModel()
-							.getPlayerCoordinate(activePlayer);
+					if (currentData != null) {
+						brightness += delta;
+						if (brightness > 1.5f || brightness < 0.8f) {
+							delta = -delta; // Reverse direction
+						}
+						FieldCoordinate playerCoordinate = client
+								.getGame()
+								.getFieldModel()
+								.getPlayerCoordinate(activePlayer);
 
-					repaint(brightness, currentData, playerCoordinate);
+						repaint(brightness, currentData, playerCoordinate);
+					}
 				} else {
 					animationTimer.stop();
 				}
@@ -103,7 +105,10 @@ public class ActivePlayerHighlighter {
 
 	private void stopHighlighting() {
 		isHighlightingOn = false;
-		ofNullable(animationDependentData).map(add -> add.g2d).ifPresent(Graphics::dispose);
+		if (animationDependentData != null) {
+			animationDependentData.g2d.dispose();
+			animationDependentData = null;
+		}
 		brightness = 1.0f;
 	}
 
@@ -120,7 +125,7 @@ public class ActivePlayerHighlighter {
 		Graphics2D g2d = animationData.g2d;
 		g2d.setClip(upperLeftX, upperLeftY, activePlayerIcon.getWidth(), activePlayerIcon.getHeight());
 		g2d.drawImage(activePlayerIcon, rescale, upperLeftX, upperLeftY);
-    }
+	}
 
 	private void refreshPlayerSquare() {
 		AnimationDependentData currentData = animationDependentData;
