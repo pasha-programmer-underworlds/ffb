@@ -1,7 +1,9 @@
 package com.fumbbl.ffb.client.animation;
 
 import com.fumbbl.ffb.FieldCoordinate;
-import com.fumbbl.ffb.client.*;
+import com.fumbbl.ffb.client.FantasyFootballClient;
+import com.fumbbl.ffb.client.PitchDimensionProvider;
+import com.fumbbl.ffb.client.PlayerIconFactory;
 import com.fumbbl.ffb.model.Player;
 
 import javax.swing.*;
@@ -9,8 +11,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static java.util.Optional.ofNullable;
 
 public class ActivePlayerHighlighter {
 
