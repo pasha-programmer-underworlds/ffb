@@ -10,7 +10,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ActivePlayerHighlighter {
 
