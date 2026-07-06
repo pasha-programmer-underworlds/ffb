@@ -67,6 +67,7 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 	private final FieldLayerSketches layerSketches;
 	private final FieldLayerTackleZones layerTackleZones;
 	private BufferedImage fImage;
+	private ActivePlayerHighlighter activePlayerHighlighter;
 
 	// we need to keep some old model values for a redraw (if those get set to null)
 	private FieldCoordinate fBallCoordinate;
@@ -361,12 +362,13 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 
 				if (actingPlayer != null && actingPlayer.getId().equals(pModelChange.getKey())) {
 					PlayerState actingPlayerState = game.getFieldModel().getPlayerState(actingPlayer);
+					UserInterface userInterface = getClient().getUserInterface();
 					if (actingPlayerState.isActive() &&
 							actingPlayerState.isMoving() &&
 							!actingPlayerState.isProneOrStunned()) {
-						fLayerPlayers.setActivePlayer(actingPlayer);
+						userInterface.setActivePlayer(actingPlayer);
 					} else {
-						fLayerPlayers.setActivePlayer(null);
+						userInterface.setActivePlayer(null);
 					}
 				}
 			}
