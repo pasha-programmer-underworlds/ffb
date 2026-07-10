@@ -8,8 +8,6 @@ import com.fumbbl.ffb.model.Player;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 
@@ -18,17 +16,9 @@ public class ActivePlayerHighlighter {
 	private FantasyFootballClient client;
 	private PitchDimensionProvider pitchDimensionProvider;
 	private BufferedImage fieldLayerPlayers;
-
 	private static ActivePlayerHighlighter instance;
-
-	//	private volatile boolean isHighlightingOn;
-	private volatile Player<?> activePlayer;
-//	private volatile Graphics2D g2d;
-
+	private Player<?> activePlayer;
 	private PlayerIconFactory playerIconFactory;
-
-	private float brightness = 1.0f;
-	private float delta = 0.05f; // How fast the brightness changes
 	private HightlightAnimationPlayerTimer animationTimer;
 
 	//When switching the layout - we do not want more then one instance of
@@ -67,6 +57,7 @@ public class ActivePlayerHighlighter {
 				animationTimer.stop();
 				animationTimer = null;
 			}
+			this.activePlayer = null;
 		} else if (this.activePlayer != null && this.activePlayer.equals(newActivePlayer)) {
 			//If the new active player is the same player as it already was then just do nothing.
 			return;
@@ -75,10 +66,9 @@ public class ActivePlayerHighlighter {
 			// then reinitialize highlighting.
 			if (animationTimer != null) {
 				animationTimer.stop();
-				animationTimer = null;
 			}
 			this.activePlayer = newActivePlayer;
-			animationTimer = new HightlightAnimationPlayerTimer(fieldLayerPlayers.createGraphics(), newActivePlayer);
+			animationTimer = new HightlightAnimationPlayerTimer(fieldLayerPlayers, newActivePlayer);
 			animationTimer.start();
 		}
 	}
@@ -109,6 +99,7 @@ public class ActivePlayerHighlighter {
 //		Because the graphics object no longer points to a valid destination surface, any subsequent calls to drawImage or setClip are ignored by the graphics pipeline. The system intentionally prevents further use to ensure that developers do not rely on "dead" objects, which might otherwise cause memory leaks or unpredictable behavior if the underlying native resources were freed.
 		g2d.setClip(upperLeftX, upperLeftY, activePlayerIcon.getWidth(), activePlayerIcon.getHeight());
 		g2d.drawImage(activePlayerIcon, rescale, upperLeftX, upperLeftY);
+		g2d.dispose();
 	}
 
 	private void refreshPlayerSquare(Player<?> currentlyActivePlayer, BufferedImage activePlayerIcon) {
@@ -133,35 +124,55 @@ public class ActivePlayerHighlighter {
 
 	class HightlightAnimationPlayerTimer extends Timer {
 
-		private final Graphics g2d;
+		// Define how many seconds it takes for a full pulse cycle (e.g., 1.5 seconds)
+		// or just define the speed (brightness units per second).
+		private static final float BRIGHTNESS_SPEED = 1.8f;
+		private float direction = 1f; // 1.0 = increasing, -1.0 = decreasing
+		private float brightness = 1f;
+		private long lastRepaintTime;
 
-		public HightlightAnimationPlayerTimer(final Graphics2D g2d, final Player<?> currentlyActivatedPlayer) {
-			super(0, new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					// Update brightness (Ping-pong logic)
-					brightness += delta;
-					if (brightness > 1.5f || brightness < 0.8f) {
-						delta = -delta; // Reverse direction
-					}
-					FieldCoordinate playerCoordinate = client
-							.getGame()
-							.getFieldModel()
-							.getPlayerCoordinate(currentlyActivatedPlayer);
+		public HightlightAnimationPlayerTimer(final BufferedImage fieldLayerPlayers, final Player<?> currentlyActivatedPlayer) {
+			super(40, null);
 
-					BufferedImage activePlayerIcon = playerIconFactory.getIcon(client, currentlyActivatedPlayer, pitchDimensionProvider);
-					repaint(brightness, activePlayerIcon, playerCoordinate, g2d);
-					refreshPlayerSquare(currentlyActivatedPlayer, activePlayerIcon);
+			// Initialize the timestamp
+			lastRepaintTime = System.currentTimeMillis();
+
+			this.addActionListener(e -> {
+				long currentTime = System.currentTimeMillis();
+				long timeDifferenceMs = currentTime - lastRepaintTime;
+				lastRepaintTime = currentTime;
+
+				// 2. Convert ms to seconds for easy math (e.g., 0.04s)
+				float deltaTimeSeconds = timeDifferenceMs / 1000f;
+
+				// 3. Update brightness based on time, not frame count
+				brightness += BRIGHTNESS_SPEED * deltaTimeSeconds * direction;
+
+				// 4. Ping-pong logic
+				if (brightness > 1.6f) {
+					brightness = 1.6f;
+					direction = -1f;
+				} else if (brightness < .6f) {
+					brightness = .6f;
+					direction = 1f;
 				}
+
+				FieldCoordinate playerCoordinate = client
+						.getGame()
+						.getFieldModel()
+						.getPlayerCoordinate(currentlyActivatedPlayer);
+
+				BufferedImage activePlayerIcon = playerIconFactory.getIcon(client, currentlyActivatedPlayer, pitchDimensionProvider);
+				repaint(brightness, activePlayerIcon, playerCoordinate, fieldLayerPlayers.createGraphics());
+				refreshPlayerSquare(currentlyActivatedPlayer, activePlayerIcon);
 			});
-			this.g2d = g2d;
 		}
 
 		@Override
 		public void stop() {
 			super.stop();
-			g2d.dispose();
 			brightness = 1.0f;
+			direction = 1.0f; // Reset direction
 		}
 	}
 
