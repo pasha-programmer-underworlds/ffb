@@ -216,13 +216,17 @@ public class FantasyFootballClientAwt extends FantasyFootballClient {
 	@Override
 	public void loadLocallyStoredProperties(String coach) {
 		try {
-			prefs = Preferences.userRoot().node("FfbUserSettings_" + coach);
+			prefs = getLocalyStoredPreferences(coach);
 			Arrays.stream(prefs.keys()).map(CommonProperty::forKey)
 				.filter(Objects::nonNull)
 				.forEach(property -> setProperty(property, prefs.get(property.getKey(), "")));
 		} catch (BackingStoreException e) {
 			logDebug(0, "Could not load Preferences: " + e.getMessage());
 		}
+	}
+
+	public static Preferences getLocalyStoredPreferences(String coach) {
+		return Preferences.userRoot().node("FfbUserSettings_" + coach);
 	}
 
 	public int getServerPort() {

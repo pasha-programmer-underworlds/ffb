@@ -86,6 +86,7 @@ public enum CommonProperty {
 	SETTING_CLICK_END_SKETCH("setting.click.endSketch", "End Sketch Click", "Configuration"),
 
 	SETTING_AUTOCOMPLETE("setting.autocomplete", "Autocomplete", "Configuration"),
+	LAST_LOADED_JNLP_FILE_FOLDER("last.loaded.jnlp.file.folder"),
 	;
 
 	public static final CommonProperty[] _SAVED_USER_SETTINGS = {SETTING_SOUND_MODE, SETTING_UI_LAYOUT,

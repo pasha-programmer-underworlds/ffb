@@ -9,7 +9,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
+import static com.fumbbl.ffb.ClientMode.NO_COACH_NO_CONNECTION;
+import static com.fumbbl.ffb.CommonProperty.LAST_LOADED_JNLP_FILE_FOLDER;
 import static com.fumbbl.ffb.client.ClientParameters.Build.PROGRAMMER_UNDERWORLDS;
 import static com.fumbbl.ffb.client.ClientParameters._ARGUMENT_BUILD;
 import static com.fumbbl.ffb.client.util.JnlpToStringArrayParser.parseJnlpArguments;
@@ -68,7 +71,22 @@ public class LoadJnlpFileWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 setUiManagerPropertiesForFileChooserFontsBeforeShowingFileChooser();
 
-                JFileChooser fileChooser = new JFileChooser();
+	            Preferences localyStoredPreferences = FantasyFootballClientAwt.getLocalyStoredPreferences(NO_COACH_NO_CONNECTION.getName());
+	            final String lastLoadedJnlpFileFolderKey = LAST_LOADED_JNLP_FILE_FOLDER.getKey();
+	            String lastPath = localyStoredPreferences.get(lastLoadedJnlpFileFolderKey, null);
+
+	            JFileChooser fileChooser = new JFileChooser();
+	            // 2. Set directory safely
+	            if (lastPath != null) {
+		            File lastDir = new File(lastPath);
+		            // Check if it exists and is actually a directory
+		            if (lastDir.exists() && lastDir.isDirectory()) {
+			            fileChooser.setCurrentDirectory(lastDir);
+		            } else {
+			            localyStoredPreferences.remove(lastLoadedJnlpFileFolderKey);
+		            }
+	            }
+
                 fileChooser.setPreferredSize(new Dimension(800, 600));
 
                 // 1. Create a filter specifically for .jnlp files
@@ -85,7 +103,16 @@ public class LoadJnlpFileWindow extends JFrame {
 
                 if (response == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    java.util.List<String> clientArgumentsFromJnlpFile = parseJnlpArguments(selectedFile);
+
+	                File directoryContainingJnlpFile = selectedFile.getParentFile();
+	                //Memorizing folder from which we loaded jnlp file last time.
+	                if (directoryContainingJnlpFile != null
+			                && directoryContainingJnlpFile.isDirectory()) {
+		                localyStoredPreferences.put(lastLoadedJnlpFileFolderKey, directoryContainingJnlpFile.getAbsolutePath());
+	                }
+
+
+	                java.util.List<String> clientArgumentsFromJnlpFile = parseJnlpArguments(selectedFile);
 
                     clientArgumentsFromJnlpFile.add(_ARGUMENT_BUILD);
                     clientArgumentsFromJnlpFile.add(PROGRAMMER_UNDERWORLDS.getName());
