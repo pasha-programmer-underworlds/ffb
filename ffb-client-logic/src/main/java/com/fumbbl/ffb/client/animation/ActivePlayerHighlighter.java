@@ -111,13 +111,7 @@ public class ActivePlayerHighlighter {
 		g2d.drawImage(activePlayerIcon, rescale, upperLeftX, upperLeftY);
 	}
 
-	private void refreshPlayerSquare(Player<?> currentlyActivePlayer) {
-		BufferedImage activePlayerIcon = playerIconFactory.getIcon(client, currentlyActivePlayer, pitchDimensionProvider);
-
-		if (activePlayerIcon == null) {
-			return;
-		}
-
+	private void refreshPlayerSquare(Player<?> currentlyActivePlayer, BufferedImage activePlayerIcon) {
 		FieldCoordinate playerCoordinate = client.getGame().getFieldModel().getPlayerCoordinate(currentlyActivePlayer);
 
 		int upperLeftX = findCenteredIconUpperLeftX(activePlayerIcon, playerCoordinate);
@@ -146,20 +140,18 @@ public class ActivePlayerHighlighter {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// Update brightness (Ping-pong logic)
-					if (currentlyActivatedPlayer != null && g2d != null) {
-						brightness += delta;
-						if (brightness > 1.5f || brightness < 0.8f) {
-							delta = -delta; // Reverse direction
-						}
-						FieldCoordinate playerCoordinate = client
-								.getGame()
-								.getFieldModel()
-								.getPlayerCoordinate(currentlyActivatedPlayer);
-
-						BufferedImage activePlayerIcon = playerIconFactory.getIcon(client, currentlyActivatedPlayer, pitchDimensionProvider);
-						repaint(brightness, activePlayerIcon, playerCoordinate, g2d);
+					brightness += delta;
+					if (brightness > 1.5f || brightness < 0.8f) {
+						delta = -delta; // Reverse direction
 					}
-					refreshPlayerSquare(currentlyActivatedPlayer);
+					FieldCoordinate playerCoordinate = client
+							.getGame()
+							.getFieldModel()
+							.getPlayerCoordinate(currentlyActivatedPlayer);
+
+					BufferedImage activePlayerIcon = playerIconFactory.getIcon(client, currentlyActivatedPlayer, pitchDimensionProvider);
+					repaint(brightness, activePlayerIcon, playerCoordinate, g2d);
+					refreshPlayerSquare(currentlyActivatedPlayer, activePlayerIcon);
 				}
 			});
 			this.g2d = g2d;
