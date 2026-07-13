@@ -32,11 +32,10 @@ import com.fumbbl.ffb.model.stadium.OnPitchEnhancement;
 import javax.swing.JPanel;
 import javax.swing.ToolTipManager;
 import javax.swing.event.MouseInputListener;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +49,7 @@ import static java.util.Optional.ofNullable;
 /**
  * @author j129340
  */
-public class FieldComponent extends JPanel implements IModelChangeObserver, MouseInputListener, RefreshableUi {
+public class FieldComponent extends JPanel implements IModelChangeObserver, MouseInputListener, MouseWheelListener, RefreshableUi {
 
 	private final FantasyFootballClient fClient;
 
@@ -67,7 +66,10 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 	private final FieldLayerSketches layerSketches;
 	private final FieldLayerTackleZones layerTackleZones;
 	private BufferedImage fImage;
-	private ActivePlayerHighlighter activePlayerHighlighter;
+
+	private float zoomFactor = 1f;
+	private int zoomStep = 0;
+	private Point zoomPoint;
 
 	// we need to keep some old model values for a redraw (if those get set to null)
 	private FieldCoordinate fBallCoordinate;
@@ -99,6 +101,7 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		addMouseWheelListener(this);
 
 		ToolTipManager.sharedInstance().registerComponent(this);
 
@@ -418,7 +421,9 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 	}
 
 	protected void paintComponent(Graphics pGraphics) {
+//		if (zoomFactor == 1) {
 		pGraphics.drawImage(fImage, 0, 0, null);
+//		}
 	}
 
 	// MouseMotionListener
@@ -536,4 +541,20 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 		return fImage;
 	}
 
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		// Check if Ctrl is held down
+		if (e.isControlDown()) {
+			zoomPoint = e.getPoint();
+			int wheelRotation = e.getWheelRotation();
+			if (wheelRotation < 0) {
+				zoomStep++;
+			} else {
+				zoomStep--;
+			}
+			zoomStep = Math.max(zoomStep, 0);
+			zoomFactor = zoomStep == 0 ? 1 : 1 + zoomStep * 0.2f;
+			System.out.println("Ctrl + Zoom " + (wheelRotation < 0 ? "In" : "Out") + " zoomFactor: " + zoomFactor + " point: " + zoomPoint);
+		}
+	}
 }
