@@ -1,19 +1,7 @@
 package com.fumbbl.ffb.client;
 
 import com.fumbbl.ffb.*;
-import com.fumbbl.ffb.client.animation.ActivePlayerHighlighter;
-import com.fumbbl.ffb.client.layer.FieldLayerBloodspots;
-import com.fumbbl.ffb.client.layer.FieldLayerEnhancements;
-import com.fumbbl.ffb.client.layer.FieldLayerMarker;
-import com.fumbbl.ffb.client.layer.FieldLayerOverPlayers;
-import com.fumbbl.ffb.client.layer.FieldLayerPitch;
-import com.fumbbl.ffb.client.layer.FieldLayerPlayers;
-import com.fumbbl.ffb.client.layer.FieldLayerRangeGrid;
-import com.fumbbl.ffb.client.layer.FieldLayerRangeRuler;
-import com.fumbbl.ffb.client.layer.FieldLayerSketches;
-import com.fumbbl.ffb.client.layer.FieldLayerTackleZones;
-import com.fumbbl.ffb.client.layer.FieldLayerTeamLogo;
-import com.fumbbl.ffb.client.layer.FieldLayerUnderPlayers;
+import com.fumbbl.ffb.client.layer.*;
 import com.fumbbl.ffb.client.overlay.Overlay;
 import com.fumbbl.ffb.client.overlay.sketch.ClientSketchManager;
 import com.fumbbl.ffb.client.state.ClientState;
@@ -29,13 +17,13 @@ import com.fumbbl.ffb.model.change.ModelChange;
 import com.fumbbl.ffb.model.sketch.SketchState;
 import com.fumbbl.ffb.model.stadium.OnPitchEnhancement;
 
-import javax.swing.JPanel;
-import javax.swing.ToolTipManager;
+import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +37,7 @@ import static java.util.Optional.ofNullable;
 /**
  * @author j129340
  */
-public class FieldComponent extends JPanel implements IModelChangeObserver, MouseInputListener, MouseWheelListener, RefreshableUi {
+public class FieldComponent extends JPanel implements IModelChangeObserver, MouseInputListener, RefreshableUi {
 
 	private final FantasyFootballClient fClient;
 
@@ -67,20 +55,18 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 	private final FieldLayerTackleZones layerTackleZones;
 	private BufferedImage fImage;
 
-	private float zoomFactor = 1f;
-	private int zoomStep = 0;
-	private Point zoomPoint;
-
 	// we need to keep some old model values for a redraw (if those get set to null)
 	private FieldCoordinate fBallCoordinate;
 	private FieldCoordinate fBombCoordinate;
 	private final Map<String, FieldCoordinate> fCoordinateByPlayerId;
 
 	private final UiDimensionProvider uiDimensionProvider;
+	private final PitchViewPort pitchViewPort;
 
 	public FieldComponent(FantasyFootballClient pClient, UiDimensionProvider uiDimensionProvider,
 												PitchDimensionProvider pitchDimensionProvider, FontCache fontCache,
-												ClientSketchManager sketchManager, StyleProvider styleProvider) {
+                          ClientSketchManager sketchManager, StyleProvider styleProvider,
+                          PitchViewPort pitchViewPort) {
 
 		fClient = pClient;
 		this.uiDimensionProvider = uiDimensionProvider;
@@ -101,7 +87,9 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		addMouseWheelListener(this);
+
+		this.pitchViewPort = pitchViewPort;
+		addMouseWheelListener(pitchViewPort);
 
 		ToolTipManager.sharedInstance().registerComponent(this);
 
@@ -421,11 +409,12 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 	}
 
 	protected void paintComponent(Graphics pGraphics) {
-//		if (zoomFactor == 1) {
-		pGraphics.drawImage(fImage, 0, 0, null);
-//		}
+			pitchViewPort.paintField(fImage, pGraphics);
 	}
 
+	public void repaint(Rectangle r) {
+		super.repaint(pitchViewPort.convertToZoomedRectangle(r));
+	}
 	// MouseMotionListener
 	public void mouseMoved(MouseEvent pMouseEvent) {
 		getClient().getUserInterface().getMouseEntropySource().reportMousePosition(pMouseEvent);
@@ -539,22 +528,5 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 
 	public BufferedImage getImage() {
 		return fImage;
-	}
-
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		// Check if Ctrl is held down
-		if (e.isControlDown()) {
-			zoomPoint = e.getPoint();
-			int wheelRotation = e.getWheelRotation();
-			if (wheelRotation < 0) {
-				zoomStep++;
-			} else {
-				zoomStep--;
-			}
-			zoomStep = Math.max(zoomStep, 0);
-			zoomFactor = zoomStep == 0 ? 1 : 1 + zoomStep * 0.2f;
-			System.out.println("Ctrl + Zoom " + (wheelRotation < 0 ? "In" : "Out") + " zoomFactor: " + zoomFactor + " point: " + zoomPoint);
-		}
 	}
 }

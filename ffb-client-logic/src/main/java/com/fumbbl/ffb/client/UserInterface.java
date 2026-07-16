@@ -68,7 +68,7 @@ public class UserInterface extends JFrame implements WindowListener, IDialogClos
 	private final ClientSketchManager sketchManager;
 	private final MarkerService markerService;
 	private final ActivePlayerHighlighter activePlayerHighlighter;
-
+	private final PitchViewPort pitchViewPort;
 
 	public UserInterface(FantasyFootballClient pClient) {
 
@@ -89,7 +89,8 @@ public class UserInterface extends JFrame implements WindowListener, IDialogClos
         layoutSettings = new LayoutSettings(pClient.getParameters().getLayout(), scale);
 		uiDimensionProvider = new UiDimensionProvider(layoutSettings);
 		pitchDimensionProvider = new PitchDimensionProvider(layoutSettings);
-		coordinateConverter = new CoordinateConverter(uiDimensionProvider, pitchDimensionProvider);
+		pitchViewPort = new PitchViewPort();
+		coordinateConverter = new CoordinateConverter(uiDimensionProvider, pitchDimensionProvider, pitchViewPort);
 		sketchManager = new ClientSketchManager(pClient.getParameters().getCoach(), pitchDimensionProvider);
 		dugoutDimensionProvider = new DugoutDimensionProvider(layoutSettings);
 		fIconCache = new IconCache(getClient());
@@ -123,7 +124,8 @@ public class UserInterface extends JFrame implements WindowListener, IDialogClos
 		setResizable(false);
 
 		fScoreBar = new ScoreBarComponent(getClient(), uiDimensionProvider, styleProvider, fontCache);
-		fFieldComponent = new FieldComponent(getClient(), uiDimensionProvider, pitchDimensionProvider, fontCache, sketchManager, styleProvider);
+		fFieldComponent = new FieldComponent(getClient(), uiDimensionProvider, pitchDimensionProvider, fontCache, sketchManager, styleProvider, pitchViewPort);
+		pitchViewPort.setFieldComponent(fFieldComponent);
         fLog = new LogComponent(getClient(), styleProvider, uiDimensionProvider, fontConfigRegistry);
         fChat = new ChatComponent(getClient(), uiDimensionProvider, styleProvider, fontCache, fontConfigRegistry, fIconCache);
         fSideBarHome = new SideBarComponent(getClient(), true, uiDimensionProvider, dugoutDimensionProvider, styleProvider, fontCache, fontConfigRegistry, markerService);
@@ -322,6 +324,10 @@ public class UserInterface extends JFrame implements WindowListener, IDialogClos
 
 	public MarkerService getMarkerService() {
 		return markerService;
+	}
+
+	public PitchViewPort getPitchViewPort() {
+		return pitchViewPort;
 	}
 
 	public GameTitle getGameTitle() {

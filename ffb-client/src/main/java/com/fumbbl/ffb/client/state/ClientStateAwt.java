@@ -250,8 +250,13 @@ public abstract class ClientStateAwt<T extends LogicModule> extends ClientState<
 				if (pitchDimensionProvider.isPitchPortrait()) {
 					offsetX = -1;
 				}
+				PitchViewPort pitchViewPort = getClient().getUserInterface().getPitchViewPort();
+//				Dimension dimension =
+//						pitchViewPort.convertToZoomedDimension(pitchDimensionProvider
+//								.mapToLocal(coordinate.getX() + offsetX, coordinate.getY() + offsetY, false)
+//						);
 				Dimension dimension =
-					pitchDimensionProvider.mapToLocal(coordinate.getX() + offsetX, coordinate.getY() + offsetY, false);
+						pitchDimensionProvider.mapToLocal(coordinate.getX() + offsetX, coordinate.getY() + offsetY, false);
 				fPopupMenu.show(getClient().getUserInterface().getFieldComponent(), dimension.width, dimension.height);
 				menuOpen = true;
 			}
