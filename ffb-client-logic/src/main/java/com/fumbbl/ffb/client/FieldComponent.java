@@ -90,6 +90,8 @@ public class FieldComponent extends JPanel implements IModelChangeObserver, Mous
 
 		this.pitchViewPort = pitchViewPort;
 		addMouseWheelListener(pitchViewPort);
+		addMouseMotionListener(pitchViewPort);
+		addMouseListener(pitchViewPort);
 
 		ToolTipManager.sharedInstance().registerComponent(this);
 
