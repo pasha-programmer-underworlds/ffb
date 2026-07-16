@@ -28,8 +28,8 @@ public class PitchViewPort implements MouseWheelListener {
 	}
 
 	public Dimension convertToZoomedDimension(Dimension d) {
-		Rectangle rectangle = convertToZoomedRectangle(new Rectangle(d.width, d.height));
-		return new Dimension(rectangle.y, rectangle.x);
+		Rectangle rectangle = convertToZoomedRectangle(new Rectangle(d.width, d.height, 0, 0));
+		return new Dimension(rectangle.x, rectangle.y);
 	}
 
 	public Rectangle convertToZoomedRectangle(Rectangle r) {
