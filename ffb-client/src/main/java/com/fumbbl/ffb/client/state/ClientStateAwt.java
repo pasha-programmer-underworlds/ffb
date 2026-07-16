@@ -197,21 +197,23 @@ public abstract class ClientStateAwt<T extends LogicModule> extends ClientState<
 				if (isClickable()) {
 					hideSelectSquare();
 					String rightClickProperty = getClient().getProperty(CommonProperty.SETTING_RIGHT_CLICK_END_ACTION);
-					if (logicModule.getActingPlayer().getPlayer() != null && pMouseEvent.getButton() == MouseEvent.BUTTON3 &&
+					int releasedButton = pMouseEvent.getButton();
+					if (logicModule.getActingPlayer().getPlayer() != null && releasedButton == MouseEvent.BUTTON3 &&
 						IClientPropertyValue.SETTING_RIGHT_CLICK_END_ACTION_ON.equals(rightClickProperty)) {
 						if (logicModule.endPlayerActivation()) {
 							getClient().getUserInterface().getFieldComponent().refreshUi();
 						}
 						menuOpen = false;
-					} else if (player.isPresent() && (pMouseEvent.getButton() != MouseEvent.BUTTON3 ||
+					} else if (player.isPresent() && releasedButton != MouseEvent.BUTTON2 && (releasedButton != MouseEvent.BUTTON3 ||
 						ALLOW_RIGHT_CLICK_ON_PLAYER.contains(rightClickProperty))) {
 						if (!menuOpen) {
 							clickOnPlayer(player.get());
 						} else {
 							menuOpen = false;
 						}
-					} else if (pMouseEvent.getButton() != MouseEvent.BUTTON3 ||
-						IClientPropertyValue.SETTING_RIGHT_CLICK_LEGACY_MODE.equals(rightClickProperty)) {
+					} else if (releasedButton != MouseEvent.BUTTON2 &&
+							(releasedButton != MouseEvent.BUTTON3 ||
+									IClientPropertyValue.SETTING_RIGHT_CLICK_LEGACY_MODE.equals(rightClickProperty))) {
 						menuOpen = false;
 						clickOnField(coordinate);
 					}
