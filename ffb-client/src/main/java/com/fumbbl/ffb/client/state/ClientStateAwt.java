@@ -180,18 +180,21 @@ public abstract class ClientStateAwt<T extends LogicModule> extends ClientState<
 					offsetX = -1;
 				}
 
-				Dimension dimension =
+				Dimension originalDimension =
 					pitchDimensionProvider.mapToLocal(coordinate.getX() + offsetX, coordinate.getY() + offsetY, false);
+
+                PitchViewPort pitchViewPort = getClient().getUserInterface().getPitchViewPort();
+                Dimension adoptedToZoomDimension = pitchViewPort.convertToZoomedDimension(originalDimension);
 
 				if (player.isPresent()) {
 					getClient().getUserInterface().getMarkerService()
 						.showMarkerPopup(getClient(), getClient().getUserInterface().getFieldComponent(), player.get(),
-							dimension.width, dimension.height);
+                                adoptedToZoomDimension.width, adoptedToZoomDimension.height);
 
 				} else {
 					getClient().getUserInterface().getMarkerService()
 						.showMarkerPopup(getClient(), getClient().getUserInterface().getFieldComponent(), coordinate,
-							dimension.width, dimension.height);
+                                adoptedToZoomDimension.width, adoptedToZoomDimension.height);
 				}
 			} else {
 				if (isClickable()) {
