@@ -113,29 +113,26 @@ public class PitchViewPort implements MouseWheelListener, MouseMotionListener, M
 		return at;
 	}
 
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		// Check if Ctrl is held down
-		if (e.isControlDown()) {
-			int wheelRotation = e.getWheelRotation();
-			if (wheelRotation < 0) {
-				zoomStep++;
-				zoomStep = Math.min(zoomStep, 14);
-				if (zoomStep < 14) {
-					Point point = e.getPoint();
-					zoomPoint = getOriginalPoint(point.x, point.y);
-				}
-			} else {
-				zoomStep--;
-				zoomStep = Math.max(zoomStep, 0);
-			}
-			zoomFactor = zoomStep == 0 ? 1 : 1 + zoomStep * 0.2f;
-			// Clamping here ensures that if the user zooms out,
-			// the image snaps back into view instead of staying "lost" off-screen.
-			clampPanOffset();
-			fieldComponent.repaint();
-		}
-	}
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int wheelRotation = e.getWheelRotation();
+        if (wheelRotation < 0) {
+            zoomStep++;
+            zoomStep = Math.min(zoomStep, 14);
+            if (zoomStep < 14) {
+                Point point = e.getPoint();
+                zoomPoint = getOriginalPoint(point.x, point.y);
+            }
+        } else {
+            zoomStep--;
+            zoomStep = Math.max(zoomStep, 0);
+        }
+        zoomFactor = zoomStep == 0 ? 1 : 1 + zoomStep * 0.2f;
+        // Clamping here ensures that if the user zooms out,
+        // the image snaps back into view instead of staying "lost" off-screen.
+        clampPanOffset();
+        fieldComponent.repaint();
+    }
 
 
 	public Point getOriginalPoint(int mouseX, int mouseY) {
