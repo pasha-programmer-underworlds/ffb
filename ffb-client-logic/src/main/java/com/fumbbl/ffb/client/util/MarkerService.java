@@ -89,7 +89,7 @@ public class MarkerService {
 
 	private JTextField createMarkerPopup(UserInterface ui, Component source, String pTitle, String pMarkerText, int pX, int pY, boolean includeMode) {
 
-		DimensionProvider dimensionProvider = ui.getPitchDimensionProvider();
+		DimensionProvider dimensionProvider = ui.getUiDimensionProvider();
 
 		JDialog pPopupMenu = new JDialog(ui);
 
