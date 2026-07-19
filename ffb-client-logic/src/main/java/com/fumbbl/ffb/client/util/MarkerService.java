@@ -18,15 +18,9 @@ import com.fumbbl.ffb.model.Game;
 import com.fumbbl.ffb.model.Player;
 import com.fumbbl.ffb.util.StringTool;
 
-import javax.swing.BoxLayout;
-import javax.swing.JDialog;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 
 public class MarkerService {
@@ -87,75 +81,104 @@ public class MarkerService {
 		}
 	}
 
-	private JTextField createMarkerPopup(UserInterface ui, Component source, String pTitle, String pMarkerText, int pX, int pY, boolean includeMode) {
+    private JTextField createMarkerPopup(UserInterface ui, Component source, String pTitle, String pMarkerText, int pX, int pY, boolean includeMode) {
+        DimensionProvider dimensionProvider = ui.getUiDimensionProvider();
 
-		DimensionProvider dimensionProvider = ui.getUiDimensionProvider();
+        // 1. Create a transparent panel that covers the whole screen to act as the glass pane
+        JPanel glassPane = new JPanel(null); // Null layout for absolute positioning
+        glassPane.setOpaque(false); // Transparent background
 
-		JDialog pPopupMenu = new JDialog(ui);
+        // 2. Define the cleanup logic
+        Runnable cleanup = () -> {
+            ui.setGlassPane(new JPanel()); // Reset to default
+            ui.getGlassPane().setVisible(false);
+        };
 
-		JPanel spacerPanel = new JPanel();
-		spacerPanel.setLayout(new BoxLayout(spacerPanel, BoxLayout.Y_AXIS));
-		spacerPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+        // 3. Create your actual popup panel
+        JPanel popupPanel = new JPanel();
+        popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.Y_AXIS));
+        popupPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        popupPanel.setBackground(Color.WHITE);
 
-		if (StringTool.isProvided(pTitle)) {
-			JLabel comp = new JLabel(dimensionProvider, pTitle);
-			comp.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-			JPanel panel = new JPanel();
-			panel.add(comp);
-			spacerPanel.add(panel);
-		}
-		JTextField markerField = new JTextField(dimensionProvider, 7);
-		if (StringTool.isProvided(pMarkerText)) {
-			markerField.setText(pMarkerText);
-		}
-		markerField.addActionListener(pActionEvent -> {
-			if (pPopupMenu.isVisible()) {
-				pPopupMenu.setVisible(false);
-			}
-		});
+        // 4. Handle clicks on the glass pane
+        glassPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // Check if the click is outside the popupPanel
+                Point p = SwingUtilities.convertPoint(glassPane, e.getPoint(), popupPanel);
+                if (!popupPanel.contains(p)) {
+                    cleanup.run();
+                }
+            }
+        });
 
-		spacerPanel.add(markerField);
+        // 5. Build your UI components (as before)
+        JPanel spacerPanel = new JPanel();
+        spacerPanel.setLayout(new BoxLayout(spacerPanel, BoxLayout.Y_AXIS));
+        spacerPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 
-		if (includeMode) {
+        if (StringTool.isProvided(pTitle)) {
+            JLabel comp = new JLabel(dimensionProvider, pTitle);
+            comp.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+            JPanel panel = new JPanel();
+            panel.add(comp);
+            spacerPanel.add(panel);
+        }
 
-			JComboBox<TransientPlayerMarker.Mode> modeComboBox = new JComboBox<>(dimensionProvider, TransientPlayerMarker.Mode.values());
-			modeComboBox.setRenderer(new MarkerCellRenderer(dimensionProvider));
-			modeComboBox.setSelectedItem(defaultMode);
-			modeComboBox.addActionListener(pActionEvent -> {
-				defaultMode = modeComboBox.getSelectedItem();
-				markerField.requestFocus();
-			});
+        JTextField markerField = new JTextField(dimensionProvider, 7);
+        if (StringTool.isProvided(pMarkerText)) {
+            markerField.setText(pMarkerText);
+        }
 
-			spacerPanel.add(modeComboBox);
-		}
-		pPopupMenu.add(spacerPanel);
+        // Action on Enter
+        markerField.addActionListener(pActionEvent -> cleanup.run());
 
-		pPopupMenu.addWindowFocusListener(new WindowFocusListener() {
-			@Override
-			public void windowGainedFocus(WindowEvent e) {
-			}
+        spacerPanel.add(markerField);
 
-			@Override
-			public void windowLostFocus(WindowEvent e) {
-				pPopupMenu.setVisible(false);
-			}
-		});
-		pPopupMenu.setUndecorated(true);
-		pPopupMenu.pack();
-		Dimension offset = offset(ui, source, dimensionProvider);
-		int componentOffsetX = offset.width + ui.getX();
-		int componentOffsetY = offset.height + ui.getY();
+        if (includeMode) {
+            JComboBox<TransientPlayerMarker.Mode> modeComboBox = new JComboBox<>(dimensionProvider, TransientPlayerMarker.Mode.values());
+            modeComboBox.setRenderer(new MarkerCellRenderer(dimensionProvider));
+            modeComboBox.setSelectedItem(defaultMode);
+            modeComboBox.addActionListener(pActionEvent -> {
+                defaultMode = modeComboBox.getSelectedItem();
+                markerField.requestFocus();
+            });
+            spacerPanel.add(modeComboBox);
+        }
 
-		pPopupMenu.setLocation(pX + componentOffsetX, pY + componentOffsetY);
-		pPopupMenu.setVisible(true);
-		markerField.selectAll();
-		markerField.requestFocus();
+        popupPanel.add(spacerPanel);
+        popupPanel.setSize(popupPanel.getPreferredSize());
 
-		return markerField;
-	}
+        // 6. Positioning
+        Dimension offset = offset(ui, source, dimensionProvider);
+        popupPanel.setLocation(pX + offset.width + ui.getX(), pY + offset.height + ui.getY());
+
+        // 7. Add popup to the glass pane, NOT the LayeredPane
+        glassPane.add(popupPanel);
+
+        // 8. Set and show
+        ui.setGlassPane(glassPane);
+        glassPane.setVisible(true);
+
+        // 1. Ensure the field gets focus
+        markerField.requestFocusInWindow();
+        markerField.selectAll();
+
+        // 2. Add ESC key binding to close the popup easily
+        // This allows the user to press ESC to dismiss instead of clicking away
+        popupPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "closePopup");
+        popupPanel.getActionMap().put("closePopup", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cleanup.run();
+            }
+        });
+
+        return markerField;
+    }
 
 	private Dimension offset(UserInterface ui, Component source, DimensionProvider dimensionProvider) {
-		Dimension dimension = new Dimension(0, ui.getGameMenuBar().getHeight() + LayoutSettings.TITLE_BAR_HEIGHT);
+		Dimension dimension = new Dimension(0, 0);
 
 		if (source == ui.getFieldComponent()) {
 			dimension.width = (int) dimensionProvider.dimension(com.fumbbl.ffb.client.Component.SIDEBAR).getWidth();
