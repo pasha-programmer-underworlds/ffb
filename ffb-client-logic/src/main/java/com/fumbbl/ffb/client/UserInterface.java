@@ -144,6 +144,10 @@ public class UserInterface extends JFrame implements WindowListener, IDialogClos
         updateFullScreenMode();
     }
 
+    public FontConfigRegistry getFontConfigRegistry() {
+        return fontConfigRegistry;
+    }
+
 	public void initComponents(boolean callInit) {
 		if (fDesktop != null) {
 			getContentPane().remove(fDesktop);

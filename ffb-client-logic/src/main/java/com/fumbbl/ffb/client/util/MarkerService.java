@@ -4,10 +4,7 @@ import com.fumbbl.ffb.ClientMode;
 import com.fumbbl.ffb.CommonProperty;
 import com.fumbbl.ffb.FieldCoordinate;
 import com.fumbbl.ffb.IClientPropertyValue;
-import com.fumbbl.ffb.client.DimensionProvider;
-import com.fumbbl.ffb.client.FantasyFootballClient;
-import com.fumbbl.ffb.client.LayoutSettings;
-import com.fumbbl.ffb.client.UserInterface;
+import com.fumbbl.ffb.client.*;
 import com.fumbbl.ffb.client.ui.swing.JComboBox;
 import com.fumbbl.ffb.client.ui.swing.JLabel;
 import com.fumbbl.ffb.client.ui.swing.JTextField;
@@ -20,7 +17,13 @@ import com.fumbbl.ffb.util.StringTool;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import static com.fumbbl.ffb.client.FontConfig.Size.SMALL;
+import static java.awt.Font.PLAIN;
 
 
 public class MarkerService {
@@ -117,8 +120,14 @@ public class MarkerService {
         spacerPanel.setLayout(new BoxLayout(spacerPanel, BoxLayout.Y_AXIS));
         spacerPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 
+        FontConfigRegistry fontConfigRegistry = ui.getFontConfigRegistry();
+        FontConfig fc = fontConfigRegistry.getConfig(dimensionProvider.getLayoutSettings().getLayout());
+        FontCache fCache = ui.getFontCache();
+        Font font = fCache.font(PLAIN, fc.getSize(SMALL), dimensionProvider);
+
         if (StringTool.isProvided(pTitle)) {
             JLabel comp = new JLabel(dimensionProvider, pTitle);
+            comp.setFont(font);
             comp.setAlignmentX(JPanel.LEFT_ALIGNMENT);
             JPanel panel = new JPanel();
             panel.add(comp);
@@ -126,6 +135,7 @@ public class MarkerService {
         }
 
         JTextField markerField = new JTextField(dimensionProvider, 7);
+        markerField.setFont(font);
         if (StringTool.isProvided(pMarkerText)) {
             markerField.setText(pMarkerText);
         }
