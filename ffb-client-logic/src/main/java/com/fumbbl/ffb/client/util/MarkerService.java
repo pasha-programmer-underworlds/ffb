@@ -178,7 +178,7 @@ public class MarkerService {
     }
 
 	private Dimension offset(UserInterface ui, Component source, DimensionProvider dimensionProvider) {
-		Dimension dimension = new Dimension(0, 0);
+		Dimension dimension = new Dimension(0, ui.getGameMenuBar().getHeight());
 
 		if (source == ui.getFieldComponent()) {
 			dimension.width = (int) dimensionProvider.dimension(com.fumbbl.ffb.client.Component.SIDEBAR).getWidth();
